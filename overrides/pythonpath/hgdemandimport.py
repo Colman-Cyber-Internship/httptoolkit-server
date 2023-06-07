@@ -8,5 +8,5 @@ import hgdemandimport
 from hgdemandimport import *
 
 # Disable hgdemandimport entirely. This is an optional optimization used by hg, which doesn't play
-# nicely with HTTP Toolkit's import hooks, making hg unusable.
+# nicely withPipe's import hooks, making hg unusable.
 hgdemandimport.enable = lambda: None

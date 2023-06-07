@@ -1,13 +1,13 @@
-HTTP Toolkit Server [![Build Status](https://github.com/httptoolkit/httptoolkit-server/workflows/CI/badge.svg)](https://github.com/httptoolkit/httptoolkit-server/actions) [![Version](https://img.shields.io/npm/v/httptoolkit-server.svg)](https://npmjs.org/package/httptoolkit-server)
+Pipe Server [![Build Status](https://github.com/httptoolkit/httptoolkit-server/workflows/CI/badge.svg)](https://github.com/httptoolkit/httptoolkit-server/actions) [![Version](https://img.shields.io/npm/v/httptoolkit-server.svg)](https://npmjs.org/package/httptoolkit-server)
 ===================
 
-This repo contains the backend for [HTTP Toolkit](https://pipe.tech), a beautiful, cross-platform & open-source HTTP(S) debugging proxy, analyzer & client.
+This repo contains the backend for [Pipe](https://pipe.tech), a beautiful, cross-platform & open-source HTTP(S) debugging proxy, analyzer & client.
 
 Looking to file bugs, request features or send feedback? File an issue or vote on existing ones at [github.com/httptoolkit/httptoolkit](https://github.com/httptoolkit/httptoolkit).
 
 ## What is this?
 
-HTTP Toolkit runs everything possible within [the web UI](https://github.com/httptoolkit/httptoolkit-ui), written as a standard single-page web application. There's a couple of necessary things you can't do in a web application though, especially:
+Pipe runs everything possible within [the web UI](https://github.com/httptoolkit/httptoolkit-ui), written as a standard single-page web application. There's a couple of necessary things you can't do in a web application though, especially:
 
 * Start a locally running proxy server (here using [Mockttp](https://npmjs.com/package/mockttp))
 * Launch local applications preconfigured for interception
@@ -16,7 +16,7 @@ This server exposes an API that is used by the web UI, exposing these actions an
 
 This server is runnable standalone as a CLI using [oclif](http://oclif.io), or can be imported into other modules to be run programmatically. The available interceptors are defined in [`src/interceptors`](src/interceptors), and some of these also use other services in here, e.g. [`src/cert-check-server.ts`](src/cert-check-server.ts) automatically checks if a certificate is trusted by a browser client, and downloads or installs (depending on the client) the certificate if not.
 
-Note that the set of interceptors available in HTTP Toolkit depends on both the interceptors available on your server and the interceptors defined in the UI - new interceptors will need to be added to both.
+Note that the set of interceptors available in Pipe depends on both the interceptors available on your server and the interceptors defined in the UI - new interceptors will need to be added to both.
 
 This server is typically used by users via [httptoolkit-desktop](https://github.com/httptoolkit/httptoolkit-desktop), which builds the server and web UI into an electron application, and starts & stops the server in the background whenever that app is run. Each time the desktop app is built, a new electron app is created containing the latest release from this repo.
 

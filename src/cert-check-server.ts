@@ -1,11 +1,11 @@
-import { getLocal, Mockttp } from 'mockttp';
+import { getLocal, Mockttp } from "mockttp";
 
-import { HtkConfig } from './config';
-import { EPHEMERAL_PORT_RANGE } from './constants';
-import { getDeferred } from './util/promise';
+import { HtkConfig } from "./config";
+import { EPHEMERAL_PORT_RANGE } from "./constants";
+import { getDeferred } from "./util/promise";
 
 const buildPage = (style: string, script?: string, body?: string) =>
-    `<html>
+  `<html>
         <head>
             <title>HTTP Toolkit HTTPS Test</title>
             <meta charset="UTF-8" />
@@ -26,29 +26,29 @@ const buildPage = (style: string, script?: string, body?: string) =>
     </html>`;
 
 export class CertCheckServer {
+  constructor(private config: HtkConfig) {}
 
-    constructor(private config: HtkConfig) { }
+  private server: Mockttp | undefined;
 
-    private server: Mockttp | undefined;
+  private certCheckedSuccessfully = getDeferred<boolean>();
 
-    private certCheckedSuccessfully = getDeferred<boolean>();
+  async start(targetUrl: string) {
+    this.server = getLocal({ https: this.config.https, cors: true });
+    await this.server.start(EPHEMERAL_PORT_RANGE);
 
-    async start(targetUrl: string) {
-        this.server = getLocal({ https: this.config.https, cors: true });
-        await this.server.start(EPHEMERAL_PORT_RANGE);
+    await Promise.all([
+      this.server.forGet("/test-https").thenCallback(() => {
+        console.log("Request to /test-https successfully received");
+        this.certCheckedSuccessfully.resolve(true);
+        return { statusCode: 200 };
+      }),
+      this.server.forGet("/check-cert").thenCallback(() => {
+        console.log("Request to /check-cert received");
 
-        await Promise.all([
-            this.server.forGet('/test-https').thenCallback(() => {
-                console.log('Request to /test-https successfully received');
-                this.certCheckedSuccessfully.resolve(true);
-                return { statusCode: 200 };
-            }),
-            this.server.forGet('/check-cert').thenCallback(() => {
-                console.log('Request to /check-cert received');
-
-                return {
-                    statusCode: 200,
-                    body: buildPage(`
+        return {
+          statusCode: 200,
+          body: buildPage(
+            `
                             body {
                                 background-color: #d8e2e6;
                                 font-family: Lato, Arial;
@@ -68,7 +68,8 @@ export class CertCheckServer {
                             iframe {
                                 display: none;
                             }
-                        `,`
+                        `,
+            `
                             <script>
                                 let installingCert = false;
                                 const targetUrl = ${JSON.stringify(targetUrl)};
@@ -90,7 +91,8 @@ export class CertCheckServer {
                                     }
                                     ensureCertificateIsInstalled();
                             </script>
-                    `, `
+                    `,
+            `
                         <svg
                             version="1.1"
                             xmlns="http://www.w3.org/2000/svg"
@@ -114,16 +116,18 @@ export class CertCheckServer {
                                 />
                             </path>
                         </svg>
-                    `)
-                };
-            }),
-            this.server.forGet('/failed-test').thenCallback(() => {
-                console.log('Request to /failed-test received');
-                this.certCheckedSuccessfully.resolve(false);
+                    `
+          ),
+        };
+      }),
+      this.server.forGet("/failed-test").thenCallback(() => {
+        console.log("Request to /failed-test received");
+        this.certCheckedSuccessfully.resolve(false);
 
-                return {
-                    statusCode: 200,
-                    body: buildPage(`
+        return {
+          statusCode: 200,
+          body: buildPage(
+            `
                             body {
                                 background-color: #d8e2e6;
                                 font-family: Lato, Arial;
@@ -144,41 +148,43 @@ export class CertCheckServer {
                             iframe {
                                 display: none;
                             }
-                        `, ``, `
+                        `,
+            ``,
+            `
                             <p>
-                                This browser does not trust the HTTP Toolkit certificate authority, so HTTPS traffic can't be intercepted.
+                                This browser does not trust thePipe certificate authority, so HTTPS traffic can't be intercepted.
                             </p><p>
-                                Closing the browser and starting it again from HTTP Toolkit will often resolve this. If not,
+                                Closing the browser and starting it again fromPipe will often resolve this. If not,
                                 please file a bug at <strong>github.com/httptoolkit/httptoolkit</strong>.
                             </p>
-                    `)
-                };
-            }),
-        ]);
-    }
+                    `
+          ),
+        };
+      }),
+    ]);
+  }
 
-    get host(): string {
-        return this.server!.url
-            .replace('https://', '');
-    }
+  get host(): string {
+    return this.server!.url.replace("https://", "");
+  }
 
-    get url(): string {
-        return this.server!.url
-            .replace('https://', 'http://')
-            .replace(/\/?$/, '/check-cert');
-    }
+  get url(): string {
+    return this.server!.url.replace("https://", "http://").replace(
+      /\/?$/,
+      "/check-cert"
+    );
+  }
 
-    async waitForSuccess(): Promise<void> {
-        return this.certCheckedSuccessfully.promise
-            .then((result) => {
-                if (result !== true) throw new Error("Certificate check failed");
-            });
-    }
+  async waitForSuccess(): Promise<void> {
+    return this.certCheckedSuccessfully.promise.then((result) => {
+      if (result !== true) throw new Error("Certificate check failed");
+    });
+  }
 
-    async stop() {
-        if (this.server) {
-            await this.server.stop();
-            this.server = undefined;
-        }
+  async stop() {
+    if (this.server) {
+      await this.server.stop();
+      this.server = undefined;
     }
+  }
 }

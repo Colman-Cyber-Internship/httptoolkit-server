@@ -1,5 +1,5 @@
 # Run a series of HTTPS requests during the build, from different multistage builds.
-# Can HTTP Toolkit successfully hook the build and capture all of these?
+# CanPipe successfully hook the build and capture all of these?
 FROM node:14 as base-image
 RUN curl -s https://base-request.test
 
